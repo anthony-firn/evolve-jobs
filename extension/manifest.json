@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Evolve Jobs \u2014 Local application companion",
+  "version": "0.1.0",
+  "description": "Apply to enabled employers using your local profile and WASM search rules.",
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://api.lever.co/*",
+    "https://jobs.lever.co/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Open Evolve Jobs"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://jobs.lever.co/*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'none'"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "policy": {
+    "minAnnual": 100000,
+    "currency": "USD",
+    "titleTerms": ["engineer"],
+    "requiredTerms": ["javascript"],
+    "excludedTerms": ["security clearance"],
+    "remoteOnly": true,
+    "locations": ["United States"]
+  },
+  "profile": {
+    "name": "",
+    "email": "",
+    "phone": "",
+    "currentCompany": "",
+    "resume": "/absolute/path/to/resume.pdf",
+    "answers": {}
+  },
+  "automation": {"enabled": false, "employers": [], "maxPerDay": 3, "confirmTruthfulProfile": false},
+  "relays": ["wss://relay.damus.io", "wss://nos.lol"]
+}

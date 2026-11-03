@@ -14,7 +14,7 @@ test('browser loads WASM under the site CSP, searches direct employer fixtures a
   try{
     const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
     let employerRequests=0;
-    await page.route('https://api.lever.co/**',route=>{employerRequests++;return route.fulfill({headers:{'access-control-allow-origin':'*'},json:[{id:'fixture',text:'Engineer <img src=x onerror=alert(1)>',descriptionPlain:'javascript',categories:{location:'United States'},workplaceType:'remote',salaryRange:{min:120000,max:140000,currency:'USD',interval:'per-year'}}]});});
+    await page.route('https://api.lever.co/**',route=>{employerRequests++;return route.fulfill({headers:{'access-control-allow-origin':'*'},json:[{id:'fixture',text:'Engineer <img src=x onerror=alert(1)>',descriptionPlain:'javascript',categories:{location:'United States'},workplaceType:'remote',salaryRange:{min:120000,max:140000,currency:'USD',interval:'per-year-salary'}}]});});
     await page.goto(`http://127.0.0.1:${server.address().port}/`);
     await page.locator('#example').click();await page.waitForFunction(()=>document.querySelector('#count').textContent.startsWith('1 rule matches'));
     assert.equal(employerRequests,0);

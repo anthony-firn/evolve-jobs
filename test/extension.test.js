@@ -12,7 +12,7 @@ test('extension submits fixture only after local authorization and keeps a durab
   try{
     const worker=context.serviceWorkers()[0]||await context.waitForEvent('serviceworker',{timeout:15000});
     const id=new URL(worker.url()).host;
-    const post={id:'fixture',text:'Software engineer',descriptionPlain:'javascript',categories:{location:'United States'},workplaceType:'remote',salaryRange:{min:120000,max:140000,currency:'USD',interval:'per-year'}};
+    const post={id:'fixture',text:'Software engineer',descriptionPlain:'javascript',categories:{location:'United States'},workplaceType:'remote',salaryRange:{min:120000,max:140000,currency:'USD',interval:'per-year-salary'}};
     // Every employer request is intercepted. No application leaves this test.
     await context.route('https://api.lever.co/**',route=>route.fulfill({json:[post,{...post,id:'low',salaryRange:{...post.salaryRange,min:90000}},{...post,id:'consent'}]}));
     await context.route('https://jobs.lever.co/**',route=>route.fulfill({contentType:'text/html',body:(route.request().url().includes('/consent/')?'<label><input type=checkbox required>Consent</label>':'')+'<label>Name<input name="name" required></label><label>Email<input type="email" name="email" required></label><label>Resume<input type="file" name="resume" required></label><button id="submit">Submit application</button><div id="confirmation"></div><script>document.querySelector("#submit").onclick=()=>{document.querySelector("#confirmation").textContent="Thank you for applying"}</script>'}));

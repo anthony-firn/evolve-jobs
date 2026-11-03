@@ -12,7 +12,7 @@ export function normalize(board, post, now = Date.now()) {
   boardURL(board);
   if (!/^[a-zA-Z0-9-]{1,100}$/.test(post.id)) throw new Error('Invalid posting ID');
   const salary = post.salaryRange || {};
-  const annual = salary.interval === 'per-year';
+  const annual = ['per-year', 'per-year-salary'].includes(salary.interval);
   return {
     version: 1, id: `lever:${board}:${post.id}`, provider: 'lever', board, postingId: post.id,
     title: String(post.text || '').slice(0, 300), company: board,

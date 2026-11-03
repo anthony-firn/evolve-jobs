@@ -6,12 +6,12 @@ import {makeEvent, readEvent} from '../src/network.js';
 import {Ledger} from '../src/worker.js';
 const now=Date.now();
 const policy={minAnnual:100000,currency:'USD',titleTerms:['engineer'],requiredTerms:['javascript'],excludedTerms:['clearance'],remoteOnly:true,locations:['United States']};
-const fixture={id:'abc-123',text:'Software engineer',descriptionPlain:'JavaScript experience',categories:{location:'United States'},workplaceType:'remote',salaryRange:{min:120000,max:160000,interval:'per-year',currency:'USD'}};
+const fixture={id:'abc-123',text:'Software engineer',descriptionPlain:'JavaScript experience',categories:{location:'United States'},workplaceType:'remote',salaryRange:{min:120000,max:160000,interval:'per-year-salary',currency:'USD'}};
 const job=()=>normalize('example',fixture,now);
 test('salary floor uses the lower bound, known annual interval and exact currency',()=>{
   assert.equal(assess(job(),policy,now).eligible,true);
   for(const patch of [{salaryMin:90000,salaryMax:200000},{salaryMin:null},{currency:'CAD'},{fetchedAt:now-86400001},{remote:false},{location:'Canada'},{description:'Python only'},{description:'JavaScript security clearance'}])assert.equal(assess({...job(),...patch},policy,now).eligible,false,JSON.stringify(patch));
-  for(const interval of ['per-hour','per-month',undefined])assert.equal(normalize('example',{...fixture,salaryRange:{...fixture.salaryRange,interval}}).salaryMin,null);
+  for(const interval of ['per-hour','per-hour-wage','per-month','per-month-salary',undefined])assert.equal(normalize('example',{...fixture,salaryRange:{...fixture.salaryRange,interval}}).salaryMin,null);
 });
 test('normalization never trusts remote URLs or profile properties',()=>{
   const j=normalize('example',{...fixture,applyUrl:'https://evil.test',profile:{email:'private'}});

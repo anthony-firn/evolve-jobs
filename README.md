@@ -94,6 +94,36 @@ python3 -m http.server 8080 --directory dist/site
 
 Open http://localhost:8080. Rules are stored in this browser's localStorage; listings are held in memory until exported. No network request occurs until you explicitly search employer boards, connect to relays or follow a link. The sample listing is visibly fictional. The workspace supports direct employer discovery, JSON imports, matching, source links, exports and relay discovery. Applications use the companion extension or optional local worker; the public website never receives your résumé.
 
+## Impact ("karma") scoring
+
+Pay isn't the only thing a job pays you in. Add an `impact` section to `policy` and Evolve Jobs scores each listing
+from -1 (the work does real harm) to +1 (it clearly helps), separately from pay and from how the company treats staff.
+
+- **Vetoes.** Weapons that kill, tobacco and nicotine, oil, gas and coal, gambling and predatory lending are out at any
+  salary. `apply` never submits a vetoed listing.
+- **Company facts** in `private/companies.json` are the real evidence: your own judgment with sources, kept private.
+  Postings only hint. Benefits boilerplate is ignored, and a positive category needs two different phrases. A veto
+  needs one phrase, so expect the odd false alarm; a company entry with `"clears": ["gambling"]` settles it.
+- **Karma-adjusted pay** = pay × (1 + `exchangeRate` × score). At the default 0.25, a +0.8 health-care role at $160K
+  ranks above a -0.1 ad-tech role at $180K. Set `exchangeRate` to 0 to rank by pay alone.
+- `minScore` (default -0.2) blocks low-impact work; `minWorkplace` (1–5, off by default) blocks companies whose
+  recorded review rating is lower.
+
+```json
+{
+  "examplehealth": {"impact": 0.6, "note": "scheduling software for community clinics", "sources": ["https://example.org/about"],
+                    "workplace": {"rating": 3.9, "note": "review site, 40 ratings", "asOf": "2026-11-24"}},
+  "defenseco": {"categories": ["weapons"], "note": "builds armed drones"}
+}
+```
+
+```sh
+npm run jobs -- rank private/config.json private/jobs.json   # eligible first, by karma-adjusted pay, with reasons
+```
+
+Categories, weights and phrases live in `src/impact.js` and can be overridden under `policy.impact.categories`.
+Every number is a value judgment. Change them to match yours.
+
 ## Donations
 
 Free to use, with no application fee, subscription, salary commission or paid ranking. [Support development through Fairground](https://www.evolvetech.dev/play/fairground/#/about), the same shared development-fund flow used by other EvolveTech projects. Wallet setup and donation availability are managed there; this project does not create a new processor or take custody of funds. Donations support development and do not buy preferential access to jobs or applications. Relay-operator donation splitting is not implemented.

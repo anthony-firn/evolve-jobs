@@ -6,8 +6,10 @@
     "requiredTerms": ["javascript"],
     "excludedTerms": ["security clearance"],
     "remoteOnly": true,
-    "locations": ["United States"]
+    "locations": ["United States"],
+    "impact": {"exchangeRate": 0.25, "minScore": -0.2, "minWorkplace": null}
   },
+  "companies": "private/companies.json",
   "profile": {
     "name": "",
     "email": "",

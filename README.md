@@ -2,13 +2,13 @@
 
 A free, self-hostable job-search and application tool from EvolveTech. Set a pay floor and qualification rules, discover employer listings, and let a client on your own device apply to supported positions. The browser workspace is featured at [evolvetech.dev](https://www.evolvetech.dev/play/evolve-jobs/).
 
-**Status: early prototype.** Live discovery supports public Lever employer boards. The browser uses a compiled Rust/WASM engine for text and pay matching. Automatic applications in the companion Chromium extension support the standard Lever hosted form with saved answers; unfamiliar fields, consent controls and CAPTCHA require manual review. Automated form behavior is tested against local fixtures, not real applications. No real application has been submitted during development. This is a foundation for a broader job agent, with explicit limits rather than a universal auto-apply claim.
+**Status: early prototype.** Live discovery supports public Greenhouse, Ashby and Lever employer boards. The browser uses a compiled Rust/WASM engine for text and pay matching. Automatic applications in the companion Chromium extension support the standard Lever hosted form with saved answers; unfamiliar fields, consent controls and CAPTCHA require manual review. Automated form behavior is tested against local fixtures, not real applications. No real application has been submitted during development. This is a foundation for a broader job agent, with explicit limits rather than a universal auto-apply claim.
 
 ## Client-first setup
 
 Use the browser workspace at [evolvetech.dev](https://www.evolvetech.dev/play/evolve-jobs/) or host the static files anywhere, including localhost. No hosted backend, résumé API, EvolveTech login or Node worker is required. The Rust/WASM engine runs text and pay matching on your device; JavaScript handles UI, networking and browser APIs. The workspace caches its own assets for offline use after the first successful load. Live discovery and applications still require network access.
 
-1. Search employer Lever board slugs, or import listing files / connect to your chosen Nostr relays.
+1. Search employer boards (`greenhouse:company`, `ashby:company` or `lever:company`), or import listing files / connect to your chosen Nostr relays.
 2. Set your pay, qualification, role and location rules. Review full requirements; keywords do not establish eligibility.
 3. Download the companion extension ZIP from the workspace. Unzip it, open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select the extracted `extension` directory. This prototype is not in a browser extension store.
 4. Export an **application plan** from the workspace and import it into the extension panel (opened from the extension toolbar icon).
@@ -49,11 +49,19 @@ chmod 600 private/config.json
 
 Edit `private/config.json`. Set your annual pay minimum, currency, title terms, qualification keywords and location rules. All required terms must occur in the listing; excluded terms disqualify it. The lower end of the published salary range must meet your floor. Hourly, missing and nonmatching currency compensation is excluded; there is no assumed exchange rate or working-hour conversion. Pay is advertised gross annual base pay, not guaranteed take-home income.
 
-Use the employer's Lever board slug from `jobs.lever.co/<board>`. Discovery requires no employer API key.
+Name each board as `provider:board`, taking the board from the employer's careers link: `job-boards.greenhouse.io/<board>`,
+`jobs.ashbyhq.com/<board>` or `jobs.lever.co/<board>`. A bare name means Lever. Discovery uses each provider's public
+job-board API and needs no employer API key.
+
+- **Pay** counts only when it's unambiguous: Lever and Ashby must say the interval is annual. Greenhouse ranges carry no
+  interval, so only base-salary ranges of 20,000 or more count; on-target earnings, bonus and equity are ignored.
+  Mixed currencies count as unknown.
+- **Remote** comes from Lever's and Ashby's workplace fields and from the posted Greenhouse location ("Remote - USA").
+- **Automatic applications** remain Lever-only. Greenhouse and Ashby listings are for search and matching; apply to them by hand.
 
 ```sh
-# Replace employer-board with a real board slug. Fetch public listings only.
-node src/cli.js discover employer-board > private/jobs.json
+# Replace with real boards. Fetches public listings only.
+node src/cli.js discover greenhouse:employer ashby:employer lever:employer > private/jobs.json
 node src/cli.js match private/config.json private/jobs.json
 ```
 

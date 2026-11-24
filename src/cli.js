@@ -15,7 +15,7 @@ const loadCompanies = config => {
 };
 try {
   if (command === 'discover') {
-    if (!args.length) throw new Error('Provide Lever board slugs');
+    if (!args.length) throw new Error('Provide job boards, e.g. lever:filevine greenhouse:northbeam ashby:resend');
     const jobs = [];
     let failed = false;
     for (const board of args) {try {jobs.push(...await discover(board));} catch(error) {console.error(error.message); failed = true;}}
@@ -54,7 +54,7 @@ try {
     // Only share listings freshly fetched from the original employer, never private application data.
     const requested = JSON.parse(readFileSync(file,'utf8')).map(parsePublicJob);
     const jobs = [];
-    for (const board of new Set(requested.map(x=>x.board))) {
+    for (const board of new Set(requested.map(x=>`${x.provider}:${x.board}`))) {
       const current = await discover(board);
       jobs.push(...current.filter(j=>requested.some(r=>r.id===j.id)));
     }

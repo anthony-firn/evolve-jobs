@@ -14,9 +14,10 @@ async function advance(){
   const day=new Date().toISOString().slice(0,10);
   if(state.history.filter(x=>new Date(x.at).toISOString().slice(0,10)===day).length>=s.maxPerDay){state.running=false;await chrome.storage.local.set({state});return;}
   for(const candidate of s.plan.jobs){
-    if(!s.employers.includes(candidate.board)||state.history.some(x=>x.id===candidate.id))continue;
+    // Only Lever forms have a tested adapter; other providers stay manual.
+    if(candidate.provider!=='lever'||!s.employers.includes(candidate.board)||state.history.some(x=>x.id===candidate.id))continue;
     let live;
-    try{live=(await discover(candidate.board)).find(x=>x.id===candidate.id);}catch(error){state.note=error.message;await chrome.storage.local.set({state});return;}
+    try{live=(await discover(`lever:${candidate.board}`)).find(x=>x.id===candidate.id);}catch(error){state.note=error.message;await chrome.storage.local.set({state});return;}
     if(!live||!assess(live,s.plan.policy).eligible)continue;
     const entry={id:live.id,url:live.applyUrl,at:Date.now(),status:'reserved'};
     state.history.push(entry);state.active=entry.id;

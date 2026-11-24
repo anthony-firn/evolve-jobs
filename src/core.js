@@ -1,3 +1,4 @@
+import {assessImpact, impactPolicy, impactReasons} from './impact.js';
 export const SUPPORT = 'https://www.evolvetech.dev/play/fairground/#/about';
 export const KIND = 30382; // Experimental application-specific addressable event.
 export const TOPIC = 'evolve-jobs-v1';
@@ -39,9 +40,11 @@ export function validatePolicy(p) {
     if (!Array.isArray(p[key]) || p[key].some(x => typeof x !== 'string' || !x.trim())) throw new Error(`Invalid ${key}`);
   }
   if (!p.titleTerms.length || !p.requiredTerms.length || (!p.remoteOnly && !p.locations.length)) throw new Error('Set role, qualification and location rules');
+  if (p.impact !== undefined) impactPolicy(p.impact);
   return p;
 }
-export function assess(job, policy, now = Date.now()) {
+// companies: optional curated company facts for impact scoring (see impact.js), keyed by companyKey().
+export function assess(job, policy, now = Date.now(), companies = {}) {
   validatePolicy(policy);
   const reasons = [];
   const text = `${job.title}\n${job.description}`.toLowerCase();
@@ -52,7 +55,10 @@ export function assess(job, policy, now = Date.now()) {
   if (policy.excludedTerms.some(x => matcher.contains(text, x.toLowerCase()))) reasons.push('Excluded terms present');
   if (policy.remoteOnly && !job.remote) reasons.push('Remote work not confirmed');
   if (policy.locations.length && !policy.locations.some(x => matcher.contains(job.location.toLowerCase(), x.toLowerCase()))) reasons.push('Location does not match');
-  return {eligible: reasons.length === 0, reasons};
+  if (policy.impact === undefined) return {eligible: reasons.length === 0, reasons};
+  const impact = assessImpact(job, policy.impact, companies);
+  reasons.push(...impactReasons(impact, policy.impact));
+  return {eligible: reasons.length === 0, reasons, impact};
 }
 export function publicJob(job) {
   // Explicit allowlist: profiles, resumes, answers and application history never enter a public event.

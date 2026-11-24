@@ -76,7 +76,7 @@ $('#share').addEventListener('click',async()=>{
     if(!selected.length)throw new Error('Find matching employer listings before sharing.');
     message('Refreshing public listings from employers before sharing…');
     const current=[];
-    for(const board of new Set(selected.map(j=>j.board))){
+    for(const board of new Set(selected.map(j=>`${j.provider}:${j.board}`))){
       const live=await discover(board);
       current.push(...live.filter(j=>selected.some(x=>x.id===j.id)&&assess(j,policy).eligible));
     }

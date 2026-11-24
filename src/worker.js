@@ -58,8 +58,10 @@ export async function fillLever(page, profile) {
 
 export async function apply(job, config, ledger, launch = () => chromium.launch({headless: false})) {
   validateAutomation(config);
+  // Greenhouse and Ashby listings are for discovery and matching; their forms have no tested adapter yet.
+  if (job.provider !== 'lever') throw new Error(`Automatic applications support Lever forms only; apply to ${job.provider} listings by hand`);
   if (!config.automation.employers.includes(job.board)) throw new Error('Employer is not enabled');
-  const live = (await discover(job.board)).find(x => x.id === job.id);
+  const live = (await discover(`lever:${job.board}`)).find(x => x.id === job.id);
   if (!live || !assess(live, config.policy).eligible) throw new Error('Current employer listing does not qualify');
   ledger.reserve(live.id, config.automation.maxPerDay);
   let browser, submitting = false;
